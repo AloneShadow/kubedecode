@@ -5,6 +5,30 @@ import yaml
 import sys
 import base64
 
+def __autocompletion():
+    print(
+    """__kubedecode_namespace()
+    {
+        local cur prev ns
+        COMPREPLY=()
+        cur="${COMP_WORDS[COMP_CWORD]}"
+        prev="${COMP_WORDS[COMP_CWORD-1]}"
+        ns=`kubectl get namespaces --no-headers | cut -d" " -f1`
+
+        if [[ "${#COMP_WORDS[@]}" == "3" ]] ; then
+            secrets=`kubectl get secrets -n ${prev} --no-headers | grep -Ev 'sh.helm|default-token' | cut -d' ' -f1`
+            COMPREPLY+=( $(compgen -W "${secrets}" ${cur}) )
+            return 0
+        fi
+
+        if [[ "${#COMP_WORDS[@]}" > "3" ]] ; then
+            return 0
+        fi
+
+        COMPREPLY=( $(compgen -W "${ns}" ${cur}) )
+     }
+complete -F __kubedecode_namespace kubedecode""")
+
 def get_secret_sections(kube_namespace):
     """ Get all secrets inside the given namespace """
     kube_secrets = subprocess.check_output("kubectl get secret -n "+kube_namespace+" -o yaml", shell=True)
@@ -23,12 +47,17 @@ def get_secrets(kube_namespace, kube_secret_name):
         except:
             print ('\x1b[1;31;40mBinary secret: '+k,":\x1b[0m", v)
 
-kube_current_context = subprocess.check_output("kubectl config current-context", shell=True)
-print ("\x1b[6;30;42mCurrent kube context is: ", kube_current_context.strip().decode(), '\x1b[0m')
 
+kube_current_context = subprocess.check_output("kubectl config current-context", shell=True)
 if len(sys.argv) == 2:
-    get_secret_sections(sys.argv[1])
+    if sys.argv[1] == 'completion':
+        __autocompletion()
+        exit(0)
+    else:
+        print ("\x1b[6;30;42mCurrent kube context is:", kube_current_context.strip().decode(), '\x1b[0m')
+        get_secret_sections(sys.argv[1])
 elif len(sys.argv) == 3:
+    print ("\x1b[6;30;42mCurrent kube context is:", kube_current_context.strip().decode(), '\x1b[0m')
     get_secrets(sys.argv[1], sys.argv[2])
 else:
     print ("Namespace required. Example: kubedecode <namespace> [<secret_name>]")
