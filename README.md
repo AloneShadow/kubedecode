@@ -10,3 +10,7 @@ Utility to extract and decode a kubernetes secret.
 ## Run
 * `kubedecode <kube_namespace>` lists all available secrets inside a given namespace
 * `kubedecode <kube_namespace> [<kube_secret>]` return a secret value
+
+## Completion (bash)
+* add line `source <(kubedecode completion)` into your .bashrc file
+* command `kubedecode completion` can generate shell autocompletions
