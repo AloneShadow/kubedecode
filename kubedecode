@@ -35,7 +35,7 @@ def get_secret_sections(kube_namespace):
     if yaml.__version__ > '3.13':
         kube_secrets_data = yaml.load(kube_secrets, Loader=yaml.FullLoader)["items"]
     else:
-        kube_secrets_data = yaml.load(kube_secrets)["data"]
+        kube_secrets_data = yaml.load(kube_secrets)["items"]
     for i in range(0,len(kube_secrets_data)):
         print ("Secrets Names in \x1b[1;32;40m"+kube_namespace+"\x1b[0m namespace:", kube_secrets_data[i]["metadata"]["name"])
 
@@ -43,7 +43,7 @@ def get_secrets(kube_namespace, kube_secret_name):
     """ Decode the given secret """
     kube_secrets = subprocess.check_output("kubectl get secret -n "+kube_namespace+" -o yaml "+kube_secret_name, shell=True)
     if yaml.__version__ > '3.13':
-        kube_secrets_data = yaml.load(kube_secrets, Loader=yaml.FullLoader)["items"]
+        kube_secrets_data = yaml.load(kube_secrets, Loader=yaml.FullLoader)["data"]
     else:
         kube_secrets_data = yaml.load(kube_secrets)["data"]
     for k,v in kube_secrets_data.items():
