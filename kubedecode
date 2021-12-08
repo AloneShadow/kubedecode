@@ -37,6 +37,8 @@ def get_secret_sections(kube_namespace):
     else:
         kube_secrets_data = yaml.load(kube_secrets)["items"]
     for i in range(0,len(kube_secrets_data)):
+        if 'sh.helm.release' in kube_secrets_data[i]["metadata"]["name"]:
+            continue
         print ("Secrets Names in \x1b[1;32;40m"+kube_namespace+"\x1b[0m namespace:", kube_secrets_data[i]["metadata"]["name"])
 
 def get_secrets(kube_namespace, kube_secret_name):
